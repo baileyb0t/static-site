@@ -1,39 +1,51 @@
-#!/usr/bin/env python3
-# vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
-# vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
-# Authors:     BP
-# =========================================
-
-# ---- dependencies {{{
 from enum import Enum
-#}}}
 
-# --- support methods --- {{{
+from htmlnode import LeafNode
+
+
 class TextType(Enum):
-    PLAIN = "plain"
+    TEXT = "text"
     BOLD = "bold"
     ITALIC = "italic"
     CODE = "code"
     LINK = "link"
     IMAGE = "image"
 
+
 class TextNode:
-    def __init__(self, text, text_type, url=None):
+    def __init__(self, text: str, text_type: TextType, url: str | None = None) -> None:
         self.text = text
         self.text_type = text_type
         self.url = url
 
-    def __eq__(self, other):
-        if not self.text == other.text: return False
-        if not self.text_type == other.text_type: return False
-        if not self.url == other.url: return False
-        return True
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TextNode):
+            return False
+        return (
+            self.text_type == other.text_type
+            and self.text == other.text
+            and self.url == other.url
+        )
 
-    def __repr__(self):
-        text = self.text
-        text_type = self.text_type
-        url = self.url
-        return f"TextNode({text}, {text_type}, {url})"
+    def __repr__(self) -> str:
+        return f"TextNode({self.text}, {self.text_type}, {self.url})"
 
 
-# }}}
+def text_node_to_html_node(text_node: TextNode) -> LeafNode:
+    if text_node.text_type == TextType.TEXT:
+        return LeafNode(None, text_node.text)
+    if text_node.text_type == TextType.BOLD:
+        return LeafNode("b", text_node.text)
+    if text_node.text_type == TextType.ITALIC:
+        return LeafNode("i", text_node.text)
+    if text_node.text_type == TextType.CODE:
+        return LeafNode("code", text_node.text)
+    if text_node.text_type == TextType.LINK:
+        if text_node.url is None:
+            raise ValueError("invalid URL")
+        return LeafNode("a", text_node.text, {"href": text_node.url})
+    if text_node.text_type == TextType.IMAGE:
+        if text_node.url is None:
+            raise ValueError("invalid URL")
+        return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
+    raise ValueError(f"invalid text type: {text_node.text_type}")
