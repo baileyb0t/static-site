@@ -5,22 +5,29 @@
 # =========================================
 
 # ---- dependencies {{{
-import sys
+from os.path import exists
 
-sys.path.append("src")
-from textnode import TextNode
-#}}}
+from copystatic import copycontents
+from pages import generate_pages_recursive
+
+# }}}
+
 
 # --- support methods --- {{{
 def main():
-    dummy = TextNode(
-        text="OOOOOhhhhh who lives in a pineapple under the sea",
-        text_type="bold"
+    if exists("static"):
+        copycontents("static", "public")
+
+    generate_pages_recursive(
+        dir_path_content="content",
+        template_path="template.html",
+        dest_dir_path="public",
     )
-    print(dummy)
+
+
 # }}}
 
 # --- main --- {{{
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 # }}}
