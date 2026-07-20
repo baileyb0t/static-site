@@ -8,7 +8,6 @@ from inline_markdown import (
     split_nodes_link,
     text_to_textnodes,
 )
-
 from textnode import TextNode, TextType
 
 

@@ -1,33 +1,25 @@
-#!/usr/bin/env python3
-# vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
-# vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
-# Authors:     BP
-# =========================================
+import os
+import shutil
 
-# ---- dependencies {{{
-from os.path import exists
+from copystatic import copy_files_recursive
+from gencontent import generate_pages_recursive
 
-from copystatic import copycontents
-from pages import generate_pages_recursive
-
-# }}}
+dir_path_static = "./static"
+dir_path_public = "./public"
+dir_path_content = "./content"
+template_path = "./template.html"
 
 
-# --- support methods --- {{{
-def main():
-    if exists("static"):
-        copycontents("static", "public")
+def main() -> None:
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
 
-    generate_pages_recursive(
-        dir_path_content="content",
-        template_path="template.html",
-        dest_dir_path="public",
-    )
+    print("Copying static files to public directory...")
+    copy_files_recursive(dir_path_static, dir_path_public)
+
+    print("Generating content...")
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public)
 
 
-# }}}
-
-# --- main --- {{{
-if __name__ == "__main__":
-    main()
-# }}}
+main()

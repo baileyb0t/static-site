@@ -1,28 +1,16 @@
 import os
 import shutil
-import subprocess
-from pathlib import Path
 
 
-def getfiles(arg, fext="*"):
-    return [path for path in Path(arg).rglob(f"*.{fext}")]
+def copy_files_recursive(source_dir_path: str, dest_dir_path: str) -> None:
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
 
-
-def copycontents(srcdir, destdir):
-    # if not os.path.exists(srcdir):
-    #    print(f"Source directory path does not exist: {srcdir}")
-    #    return
-    found = getfiles(srcdir)
-    if os.path.exists(destdir):
-        if any(getfiles(destdir)):
-            subprocess.call(["rm", "-r", f"{destdir}/*"])
-    else:
-        os.mkdir(destdir)
-    for file in found:
-        nested = file.parts[1:-1]
-        newpath = f"{destdir}/"
-        newpath += "/".join(nested)
-        os.makedirs(newpath, exist_ok=True)
-        newpath += "/" + file.name
-        shutil.copy(file, newpath)
-    shutil.rmtree(srcdir)
+    for filename in os.listdir(source_dir_path):
+        from_path = os.path.join(source_dir_path, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
+        else:
+            copy_files_recursive(from_path, dest_path)

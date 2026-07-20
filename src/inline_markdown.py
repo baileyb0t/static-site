@@ -22,14 +22,16 @@ def split_nodes_delimiter(
             new_nodes.append(old_node)
             continue
         split_nodes = []
-        sections = [x for x in old_node.text.split(delimiter) if x]
+        sections = old_node.text.split(delimiter)
         if not any(sections):
             continue
-        # if len(sections) % 2 == 0:
-        #    print(
-        #        f"\n\nERROR with markdown text\n\n{old_node.text}\n\n and sections\n\n{sections}"
-        #    )
-        #    raise ValueError("invalid markdown, formatted section not closed")
+        if len(sections) % 2 == 0:
+            print(
+                f"\n\nERROR with markdown text\n\n{old_node.text}\n\n and sections\n\n{
+                    sections
+                }"
+            )
+            raise ValueError("invalid markdown, formatted section not closed")
         for i in range(len(sections)):
             if sections[i] == "":
                 continue
