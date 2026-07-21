@@ -35,7 +35,7 @@ Here's the deal, **I like Tolkien**.
 
 Here's what `elflang` looks like (the perfect coding language):
 
-```{go}
+```
 func main(){
     fmt.Println("Aiya, Ambar!")
 }
