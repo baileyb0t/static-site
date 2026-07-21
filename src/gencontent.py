@@ -1,24 +1,39 @@
 import os
 from pathlib import Path
 
+from loguru import logger
+
 from markdown_blocks import markdown_to_html_node
 
 
+def setuplogging(logfile):
+    logger.add(
+        logfile,
+        colorize=True,
+        format="<green>{time:YYYY-MM-DD⋅at⋅HH:mm:ss}</green>⋅<level>{message}</level>",
+        level="INFO",
+    )
+    return 1
+
+
 def generate_pages_recursive(
-    dir_path_content: str, template_path: str, dest_dir_path: str
+    dir_path_content: str, template_path: str, dest_dir_path: str, base_path: str
 ) -> None:
+    setuplogging("logs/gencontent.log")
     for filename in os.listdir(dir_path_content):
         from_path = os.path.join(dir_path_content, filename)
         dest_path = os.path.join(dest_dir_path, filename)
         if os.path.isfile(from_path):
             dest_path = Path(dest_path).with_suffix(".html")
-            generate_page(from_path, template_path, dest_path)
+            generate_page(from_path, template_path, dest_path, base_path)
         else:
-            generate_pages_recursive(from_path, template_path, dest_path)
+            generate_pages_recursive(from_path, template_path, dest_path, base_path)
 
 
-def generate_page(from_path: str, template_path: str, dest_path: str | Path) -> None:
-    print(f" * {from_path} {template_path} -> {dest_path}")
+def generate_page(
+    from_path: str, template_path: str, dest_path: str | Path, base_path: str
+) -> None:
+    logger.info(f" * {from_path} {template_path} -> {dest_path}")
     from_file = open(from_path, "r")
     markdown_content = from_file.read()
     from_file.close()
@@ -33,6 +48,8 @@ def generate_page(from_path: str, template_path: str, dest_path: str | Path) -> 
     title = extract_title(markdown_content)
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html)
+    template = template.replace('href="/', f'href="{base_path}')
+    template = template.replace('src="/', f'src="{base_path}')
 
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
